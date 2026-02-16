@@ -4,31 +4,47 @@
   <meta charset="UTF-8">
   <title>ColourJoy Kids AI</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
-    input { width: 100%; padding: 10px; margin-bottom: 10px; }
-    button { padding: 10px 20px; }
-    pre { background: #f4f4f4; padding: 10px; }
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    textarea { width: 100%; height: 100px; }
+    button { margin-top: 1rem; padding: 0.5rem 1rem; }
+    pre { background: #f0f0f0; padding: 1rem; white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <h1>ColourJoy Kids AI</h1>
-  <input id="prompt" placeholder="Wpisz zadanie dla dziecka" />
-  <button onclick="send()">Generuj</button>
-  <pre id="output"></pre>
+  <p>Wpisz zadanie dla dziecka:</p>
+  <textarea id="prompt" placeholder="Napisz wierszyk o zwierzątkach"></textarea>
+  <br>
+  <button onclick="generate()">Generuj</button>
+  <h2>Odpowiedź AI:</h2>
+  <pre id="output">Tutaj pojawi się odpowiedź...</pre>
 
   <script>
-    async function send() {
+    async function generate() {
       const prompt = document.getElementById("prompt").value;
+      if (!prompt) {
+        alert("Wpisz zadanie!");
+        return;
+      }
 
-      const res = await fetch("/api/gemini", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
+      const output = document.getElementById("output");
+      output.innerText = "Generuję odpowiedź...";
 
-      const data = await res.json();
-      document.getElementById("output").textContent =
-        data.candidates?.[0]?.content?.parts?.[0]?.text || "Brak odpowiedzi";
+      try {
+        const res = await fetch("/api/gemini", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+        if (data.error) {
+          output.innerText = "Błąd: " + data.error;
+        } else {
+          output.innerText = JSON.stringify(data.result, null, 2);
+        }
+      } catch (err) {
+        output.innerText = "Błąd sieci: " + err.message;
+      }
     }
   </script>
 </body>
