@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>ColourJoy Kids AI</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    input { width: 100%; padding: 10px; margin-bottom: 10px; }
+    button { padding: 10px 20px; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>ColourJoy Kids AI</h1>
+  <input id="prompt" placeholder="Wpisz zadanie dla dziecka" />
+  <button onclick="send()">Generuj</button>
+  <pre id="output"></pre>
+
+  <script>
+    async function send() {
+      const prompt = document.getElementById("prompt").value;
+
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+      document.getElementById("output").textContent =
+        data.candidates?.[0]?.content?.parts?.[0]?.text || "Brak odpowiedzi";
+    }
+  </script>
+</body>
+</html>
